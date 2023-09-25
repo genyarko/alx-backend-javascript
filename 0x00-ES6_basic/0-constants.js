@@ -1,15 +1,14 @@
 export function taskFirst() {
-  // Instantiate variable using const
   const task = 'I prefer const when I can.';
-
   return task;
 }
 
-export function taskNext() {
-  // Instantiate variable using let
-  let combination = 'But sometimes let';
+export function getLast() {
+  return ' is okay';
+}
 
-  // Concatenate the string returned by getLast()
+export function taskNext() {
+  let combination = 'But sometimes let';
   combination += getLast();
 
   return combination;
