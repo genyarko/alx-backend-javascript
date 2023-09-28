@@ -1,21 +1,26 @@
 export default class Airport {
   constructor(name, code) {
-    this._name = name;
-    this._code = code;
+    this.name = name;
+    this.code = code;
   }
 
-  // Getter for name
   get name() {
     return this._name;
   }
 
-  // Getter for code
+  set name(value) {
+    this._name = value;
+  }
+
   get code() {
     return this._code;
   }
 
-  // Default string description of the class
-  toString() {
+  set code(value) {
+    this._code = value;
+  }
+
+  get [Symbol.toStringTag]() {
     return this._code;
   }
 }
