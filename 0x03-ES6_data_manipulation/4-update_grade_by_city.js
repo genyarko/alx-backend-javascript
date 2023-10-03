@@ -1,12 +1,18 @@
-import getListStudents from "./0-get_list_students.js";
+export default function updateStudentGradeByCity(students, city, newGrades) {
+  const defaultGrade = { grade: 'N/A' };
 
-const students = getListStudents();
-const newGrades = [
-  { studentId: 1, grade: 95 },
-  { studentId: 5, grade: 88 },
-  // Add more grades as needed
-];
-
-const city = 'San Francisco';
-const updatedStudents = updateStudentGradeByCity(students, city, newGrades);
-console.log(updatedStudents);
+  if (students instanceof Array) {
+    return students
+      .filter((student) => student.location === city)
+      .map((student) => {
+        const matchingGrade = newGrades.find((grade) => grade.studentId === student.id);
+        return {
+          id: student.id,
+          firstName: student.firstName,
+          location: student.location,
+          grade: matchingGrade ? matchingGrade.grade : defaultGrade.grade,
+        };
+      });
+  }
+  return [];
+}
