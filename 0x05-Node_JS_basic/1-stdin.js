@@ -1,31 +1,18 @@
-// File: 1-stdin.js
+process.stdout.write('Welcome to Holberton School, what is your name?\n');
 
-const readline = require('readline');
+process.stdin.setRawMode(true);
+process.stdin.resume();
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-console.log('Welcome to Holberton School, what is your name?');
-
-rl.question('', (name) => {
-  console.log(`Your name is: ${name}`);
-  console.log('Type "exit" to close the program.');
-});
-
-// Listen for the "line" event to detect user input
-rl.on('line', (input) => {
-  if (input.toLowerCase() === 'exit') {
-    console.log('This important software is now closing');
-    rl.close();
+process.stdin.on('data', (key) => {
+  if (key.toString() === '\u0017') {
+    // Ctrl+Q was pressed
+    process.stdout.write('This important software is now closing\n');
+    process.exit(0);
   } else {
-    // Handle other input if needed
-    console.log(`You typed: ${input}`);
+    process.stdout.write(`Your name is: ${key}`);
   }
 });
 
-// Listen for the "close" event to perform cleanup
-rl.on('close', () => {
-  process.exit(0);
+process.stdin.on('end', () => {
+  process.stdout.write('This important software is now closing\n');
 });
