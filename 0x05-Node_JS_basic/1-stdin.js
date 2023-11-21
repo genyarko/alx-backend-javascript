@@ -1,4 +1,5 @@
 // File: 1-stdin.js
+
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -6,18 +7,10 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-console.log("Welcome to Holberton School, what is your name?");
+console.log('Welcome to Holberton School, what is your name?');
 
-rl.on('line', (input) => {
-  if (input === 'exit') {
-    console.log("This important software is now closing");
-    rl.close();
-  } else {
-    console.log(`Your name is: ${input}`);
-    console.log("Welcome to Holberton School, what is your name?");
-  }
-});
-
-rl.on('close', () => {
-  process.exit(0);
+rl.question('', (name) => {
+  console.log(`Your name is: ${name}`);
+  console.log('This important software is now closing');
+  rl.close();
 });
