@@ -1,15 +1,10 @@
 process.stdout.write('Welcome to Holberton School, what is your name?\n');
 
-process.stdin.setRawMode(true);
-process.stdin.resume();
+process.stdin.on('readable', () => {
+  const chunk = process.stdin.read();
 
-process.stdin.on('data', (key) => {
-  if (key.toString() === '\u0017') {
-    // Ctrl+Q was pressed
-    process.stdout.write('This important software is now closing\n');
-    process.exit(0);
-  } else {
-    process.stdout.write(`Your name is: ${key}`);
+  if (chunk) {
+    process.stdout.write(`Your name is: ${chunk}`);
   }
 });
 
