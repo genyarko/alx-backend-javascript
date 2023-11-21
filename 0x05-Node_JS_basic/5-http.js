@@ -17,71 +17,62 @@ const countStudents = (dataPath) => new Promise((resolve, reject) => {
   if (!dataPath) {
     reject(new Error('Cannot load the database'));
   }
-
   // Read the CSV data asynchronously
-  fs.readFile(dataPath, (err, data) => {
-    // Handle file read errors
-    if (err) {
-      reject(new Error('Cannot load the database'));
-    }
-
-    // Process data if available
-    if (data) {
-      const reportParts = [];
-      const fileLines = data.toString('utf-8').trim().split('\n');
-      const studentGroups = {};
-      const dbFieldNames = fileLines[0].split(',');
-      const studentPropNames = dbFieldNames.slice(0, dbFieldNames.length - 1);
-
-      // Parse each line in the CSV file
-      for (const line of fileLines.slice(1)) {
-        const studentRecord = line.split(',');
-        const studentPropValues = studentRecord.slice(0, studentRecord.length - 1);
-        const field = studentRecord[studentRecord.length - 1];
-
-        // Initialize studentGroups for each field
-        if (!Object.keys(studentGroups).includes(field)) {
-          studentGroups[field] = [];
+  if (dataPath) {
+    fs.readFile(dataPath, (err, data) => {
+      // Handle file read errors
+      if (err) {
+        reject(new Error('Cannot load the database'));
+      }
+      // Process data if available
+      if (data) {
+        const reportParts = [];
+        const fileLines = data.toString('utf-8').trim().split('\n');
+        const studentGroups = {};
+        const dbFieldNames = fileLines[0].split(',');
+        const studentPropNames = dbFieldNames.slice(
+          0,
+          dbFieldNames.length - 1,
+        );
+        // Parse each line in the CSV file
+        for (const line of fileLines.slice(1)) {
+          const studentRecord = line.split(',');
+          const studentPropValues = studentRecord.slice(
+            0,
+            studentRecord.length - 1,
+          );
+          const field = studentRecord[studentRecord.length - 1];
+          // Initialize studentGroups for each field
+          if (!Object.keys(studentGroups).includes(field)) {
+            studentGroups[field] = [];
+          }
+          const studentEntries = studentPropNames.map((propName, idx) => [
+            propName,
+            studentPropValues[idx],
+          ]);
+          studentGroups[field].push(Object.fromEntries(studentEntries));
         }
 
-        // Create student entries and add to the corresponding field
-        const studentEntries = studentPropNames.map((propName, idx) => [
-          propName,
-          studentPropValues[idx],
-        ]);
-        studentGroups[field].push(Object.fromEntries(studentEntries));
+        const totalStudents = Object.values(studentGroups).reduce(
+          (pre, cur) => (pre || []).length + cur.length,
+        );
+        reportParts.push(`Number of students: ${totalStudents}`);
+        for (const [field, group] of Object.entries(studentGroups)) {
+          reportParts.push([
+            `Number of students in ${field}: ${group.length}.`,
+            'List:',
+            group.map((student) => student.firstname).join(', '),
+          ].join(' '));
+        }
+        resolve(reportParts.join('\n'));
       }
-
-      // Calculate total number of students
-      const totalStudents = Object.values(studentGroups).reduce(
-        (pre, cur) => (pre || []).length + cur.length,
-        0
-      );
-      reportParts.push(`Number of students: ${totalStudents}`);
-
-      // Generate report for each field
-      for (const [field, group] of Object.entries(studentGroups)) {
-        reportParts.push([
-          `Number of students in ${field}: ${group.length}.`,
-          'List:',
-          group.map((student) => student.firstname).join(', '),
-        ].join(' '));
-      }
-
-      // Resolve the promise with the generated report
-      resolve(reportParts.join('\n'));
-    }
-  });
+    });
+  }
 });
 
 const SERVER_ROUTE_HANDLERS = [
   {
     route: '/',
-    /**
-     * Handler for the root route.
-     * @param {http.IncomingMessage} _ - The request object.
-     * @param {http.ServerResponse} res - The response object.
-     */
     handler(_, res) {
       const responseText = 'Hello Holberton School!';
 
@@ -93,15 +84,9 @@ const SERVER_ROUTE_HANDLERS = [
   },
   {
     route: '/students',
-    /**
-     * Handler for the /students route.
-     * @param {http.IncomingMessage} _ - The request object.
-     * @param {http.ServerResponse} res - The response object.
-     */
     handler(_, res) {
       const responseParts = ['This is the list of our students'];
 
-      // Call the countStudents function and handle the result or error
       countStudents(DB_FILE)
         .then((report) => {
           responseParts.push(report);
@@ -124,7 +109,6 @@ const SERVER_ROUTE_HANDLERS = [
 ];
 
 app.on('request', (req, res) => {
-  // Find the appropriate route handler for the requested URL
   for (const routeHandler of SERVER_ROUTE_HANDLERS) {
     if (routeHandler.route === req.url) {
       routeHandler.handler(req, res);
@@ -133,10 +117,8 @@ app.on('request', (req, res) => {
   }
 });
 
-// Start the server and listen on the specified port and host
 app.listen(PORT, HOST, () => {
   process.stdout.write(`Server listening at -> http://${HOST}:${PORT}\n`);
 });
 
-// Export the app variable for external use
 module.exports = app;
